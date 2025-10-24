@@ -1,0 +1,122 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   gather_coordinates.c                               :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: elara-va <elara-va@student.s19.be>         #+#  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025-10-18 13:18:44 by elara-va          #+#    #+#             */
+/*   Updated: 2025-10-18 13:18:44 by elara-va         ###   ########.be       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "fdf.h"
+
+static int	parse_row(t_map_resources *map, t_minilibx_resources mlx_resources,
+	t_coordinates *coords, t_rendering_resources *render_resources)
+{
+	map->gnl_str = get_next_line(map->fd);
+	if (!map->gnl_str)
+		return (0);
+	map->row = ft_split(map->gnl_str, ' ');
+	if (!map->row) // Instance 3, close fd, free mlx_ptr, coord and gnl_str
+		clean_up_and_exit(3, *map, mlx_resources, coords);
+	if (!check_for_valid_row_length(render_resources, *map)) // Instance 4, close fd, free mlx_ptr, coord, gnl_str and row
+		clean_up_and_exit(4, *map, mlx_resources, coords);
+	return (1);
+}
+
+static void	parse_str_from_row(t_map_resources map, t_minilibx_resources mlx_resources,
+	t_coordinates *coords)
+{
+	while (1)
+	{
+		if (ft_isdigit(map.row[map.x][map.i]))
+		{
+			map.i++;
+			if (!map.row[map.x][map.i] || map.row[map.x][map.i] == '\n')
+			{
+				coords->colour = 0xFFFFFF;
+				return ;
+			}
+		}
+		else
+		{
+			if (map.row[map.x][map.i] == ',')
+			{
+				if (ishex(map.row[map.x] + (map.i + 1)))
+				{
+					coords->colour = 0xFFFFFF; // Change this to assign the hexadecimal from the string
+					return ;
+				}
+			}
+			ft_dprintf(2, "Invalid .fdf file: Empty line or invalid coordinate\n");
+			clean_up_and_exit(4, map, mlx_resources, coords); // Instance 4, same as previous one
+		}
+	}
+}
+
+static void	apply_projecting_formulas(t_coordinates *coords,
+	t_map_resources map)
+{
+	int			projection_formula_for_x;
+	int			projection_formula_for_y;
+
+	coords->z = ft_atoi(map.row[map.x]);
+	map.x *= SCALE;
+	map.y *= SCALE;
+	coords->z *= SCALE;
+	projection_formula_for_x = (map.x - map.y) * cos(PI / 6);
+	projection_formula_for_y = (map.x + map.y) * (sin(PI / 6) - coords->z);
+	coords->projected_x = projection_formula_for_x;
+	coords->projected_y = projection_formula_for_y;
+	return ;
+}
+
+static void	project_coordinates(t_map_resources *map, t_minilibx_resources mlx_resources,
+	t_coordinates *coords, t_rendering_resources *render_resources)
+{
+	while (1)
+	{
+		map->x = 0;
+		if (!parse_row(map, mlx_resources, coords, render_resources))
+			return ;
+		while (map->row[map->x])
+		{
+			parse_str_from_row(*map, mlx_resources, coords);
+			if (map->y > 0 || map->x > 0) // Meaning that we're not in the first node
+			{
+				if (!create_next_node(&coords))
+					clean_up_and_exit(4, *map, mlx_resources, coords); // Instance 4, same as previous one
+			}
+			apply_projecting_formulas(coords, *map);
+			if (!image_size_check(render_resources, coords))
+			{
+				ft_dprintf(2, "Image too large\n");
+					clean_up_and_exit(4, *map, mlx_resources, coords); // Instance 4, same as previous one
+			}
+			map->x++;
+		}
+		map->y++;
+		free(map->gnl_str);
+		free_str_arr(map->row);
+	}
+}	
+
+void	manage_file_coordinates(char *file, t_coordinates **coords,
+	t_minilibx_resources *mlx_resources, t_rendering_resources *render_resources)
+{
+	t_map_resources map;
+
+	map.fd = open(file, O_RDONLY);
+	if (map.fd == -1)
+	{
+		ft_dprintf(2, "Failed to open %s\n", file);
+		exit(EXIT_FAILURE);
+	}
+	assign_various_resources(&map, coords, mlx_resources, render_resources);
+	project_coordinates(&map, *mlx_resources, *coords, render_resources);
+	render_resources->nbr_of_rows = map.y;
+	close(map.fd);
+	return ;
+}

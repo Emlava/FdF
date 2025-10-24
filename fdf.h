@@ -1,0 +1,120 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   fdf.h                                              :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: elara-va <elara-va@student.s19.be>         #+#  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025-09-21 14:55:30 by elara-va          #+#    #+#             */
+/*   Updated: 2025-09-21 14:55:30 by elara-va         ###   ########.be       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#ifndef FDF_H
+# define FDF_H
+# define PI 3.14159265358979323846
+# define WINDOW_MARGIN 100 // Must be an even number
+# define OFFSET (WINDOW_MARGIN / 2)
+# define SCALE 30
+# define NO 0
+# define YES 1
+# include <X11/X.h>
+# include <fcntl.h>
+# include <math.h>
+# include "minilibx-linux/mlx.h"
+# include "libft/libft.h"
+
+typedef struct s_minilibx_resources
+{
+	void	*mlx_ptr;
+	void	*img_ptr;
+	char	*img_addr;
+	void	*win_ptr;
+	int		bits_per_pixel;
+	int		size_line;
+	int		endian;
+}	t_minilibx_resources;
+
+typedef struct s_map_resources
+{
+	int		fd;
+	char	*gnl_str;
+	char	**row;
+	int		x;
+	int		y;
+	int		i;
+}	t_map_resources;
+
+typedef struct s_coordinates
+{
+	int						z;
+	int						projected_x;
+	int						projected_y;
+	int						colour;
+	int						already_drawn;
+	struct s_coordinates	*next;
+}	t_coordinates;
+
+typedef struct s_rendering_resources
+{
+	int	screen_width;
+	int	screen_hight;
+	int	row_length;
+	int	nbr_of_rows;
+	int	largest_projected_x;
+	int	largest_projected_y;
+}	t_rendering_resources;
+
+typedef struct s_drawing_resources
+{
+	int	dx;
+	int	dy;
+	int	steps;
+	int slope_x;
+	int slope_y;
+	int	colour_gradient_rate;
+	int	i;
+}	t_drawing_resources;
+
+/**** argument_check.c ****/
+void	argument_check(int ac, char *av[]);
+
+/**** manage_file_coordinates.c ****/
+void	manage_file_coordinates(char *file, t_coordinates **coords,
+			t_minilibx_resources *mlx_resources, t_rendering_resources *render_resources);
+
+/**** manage_file_coordinates_utilities_1.c */
+void	assign_various_resources(t_map_resources *map, t_coordinates **coords,
+			t_minilibx_resources *mlx_resources, t_rendering_resources *render_resources);
+int		check_for_valid_row_length(t_rendering_resources *render_resources,
+			t_map_resources map);
+int		create_next_node(t_coordinates **coords);
+int		image_size_check(t_rendering_resources *render_resources,
+			t_coordinates *coords);
+
+/**** manage_file_coordinates_utilities_2.c */
+int		ishex(char *str);
+
+/**** create_image.c ****/
+void	create_image(t_minilibx_resources *mlx_resources,
+			t_rendering_resources render_resources, t_coordinates *coords);
+
+/**** create_image_utilities.c ****/
+void	initialize_mlx_resources(t_minilibx_resources *mlx_resources,
+			t_rendering_resources render_resources, t_coordinates *coords);
+void	draw_line(t_coordinates coord_1, t_coordinates coord_2,
+			t_minilibx_resources mlx_resources);
+void	get_lower_coord(t_coordinates *coords, t_coordinates **lower_coord,
+			t_rendering_resources render_resources);
+
+/**** cleaning_utilities.c ****/
+void	free_linked_list(t_coordinates *coord);
+void	free_str_arr(char **str_arr);
+void	mlx_clean_up(int instance, t_minilibx_resources mlx_resources);
+void	clean_up_and_exit(int instance, ...);
+
+/**** hooks.c ****/
+int	manage_esc(int keycode, void *mlx_resources);
+int	manage_cross(void *mlx_resources);
+
+#endif
