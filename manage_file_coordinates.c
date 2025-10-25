@@ -20,9 +20,9 @@ static int	parse_row(t_map_resources *map, t_minilibx_resources mlx_resources,
 		return (0);
 	map->row = ft_split(map->gnl_str, ' ');
 	if (!map->row) // Instance 3, close fd, free mlx_ptr, coord and gnl_str
-		clean_up_and_exit(3, *map, mlx_resources, coords);
+		clean_up_and_exit(3, map, &mlx_resources, coords);
 	if (!check_for_valid_row_length(render_resources, *map)) // Instance 4, close fd, free mlx_ptr, coord, gnl_str and row
-		clean_up_and_exit(4, *map, mlx_resources, coords);
+		clean_up_and_exit(4, map, &mlx_resources, coords);
 	return (1);
 }
 
@@ -51,7 +51,7 @@ static void	parse_str_from_row(t_map_resources map, t_minilibx_resources mlx_res
 				}
 			}
 			ft_dprintf(2, "Invalid .fdf file: Empty line or invalid coordinate\n");
-			clean_up_and_exit(4, map, mlx_resources, coords); // Instance 4, same as previous one
+			clean_up_and_exit(4, &map, &mlx_resources, coords); // Instance 4, same as previous one
 		}
 	}
 }
@@ -66,8 +66,8 @@ static void	apply_projecting_formulas(t_coordinates *coords,
 	map.x *= SCALE;
 	map.y *= SCALE;
 	coords->z *= SCALE;
-	projection_formula_for_x = (map.x - map.y) * cos(PI / 6);
-	projection_formula_for_y = (map.x + map.y) * (sin(PI / 6) - coords->z);
+	projection_formula_for_x = (map.x + map.y) * cos(PI / 6);
+	projection_formula_for_y = (map.x - map.y) * sin(PI / 6) - coords->z;
 	coords->projected_x = projection_formula_for_x;
 	coords->projected_y = projection_formula_for_y;
 	return ;
@@ -87,14 +87,10 @@ static void	project_coordinates(t_map_resources *map, t_minilibx_resources mlx_r
 			if (map->y > 0 || map->x > 0) // Meaning that we're not in the first node
 			{
 				if (!create_next_node(&coords))
-					clean_up_and_exit(4, *map, mlx_resources, coords); // Instance 4, same as previous one
+					clean_up_and_exit(4, map, &mlx_resources, coords); // Instance 4, same as previous one
 			}
 			apply_projecting_formulas(coords, *map);
-			if (!image_size_check(render_resources, coords))
-			{
-				ft_dprintf(2, "Image too large\n");
-					clean_up_and_exit(4, *map, mlx_resources, coords); // Instance 4, same as previous one
-			}
+			look_for_greatest_and_lowest_points(coords, render_resources);
 			map->x++;
 		}
 		map->y++;
@@ -117,6 +113,11 @@ void	manage_file_coordinates(char *file, t_coordinates **coords,
 	assign_various_resources(&map, coords, mlx_resources, render_resources);
 	project_coordinates(&map, *mlx_resources, *coords, render_resources);
 	render_resources->nbr_of_rows = map.y;
+	if (!adjust_coords_into_frame(*coords, render_resources))
+	{
+		ft_dprintf(2, "Image too large\n");
+			clean_up_and_exit(5, mlx_resources, *coords); // Instance 5
+	}
 	close(map.fd);
 	return ;
 }

@@ -17,19 +17,21 @@ void	assign_various_resources(t_map_resources *map, t_coordinates **coords,
 {
 	mlx_resources->mlx_ptr = mlx_init();
 	if (!mlx_resources->mlx_ptr) // Instance 1, close fd 
-		clean_up_and_exit(1, *map);
+		clean_up_and_exit(1, map);
 	mlx_get_screen_size(mlx_resources->mlx_ptr, &render_resources->screen_width,
 		&render_resources->screen_hight);
 	*coords = malloc(sizeof(t_coordinates));
 	if (!(*coords)) // Instance 2, close fd and free mlx_ptr
-		clean_up_and_exit(2, *map, *mlx_resources);
+		clean_up_and_exit(2, map, mlx_resources);
 	(*coords)->next = NULL;
 	(*coords)->already_drawn = NO;
 	render_resources->row_length = -1;
 	map->y = 0;
 	map->i = 0;
-	render_resources->largest_projected_x = 0;
-	render_resources->largest_projected_y = 0;
+	render_resources->greatest_projected_x = 0;
+	render_resources->greatest_projected_y = 0;
+	render_resources->lowest_projected_x = 0;
+	render_resources->lowest_projected_y = 0;
 	return ;
 }
 
@@ -67,25 +69,16 @@ int	create_next_node(t_coordinates **coords)
 	return (1);
 }
 
-int	image_size_check(t_rendering_resources *render_resources,
-	t_coordinates *coords)
+void	look_for_greatest_and_lowest_points(t_coordinates *coords,
+	t_rendering_resources *render_resources)
 {
-	int	current_width_needed;
-	int	current_hight_needed;
-
-	if (render_resources->largest_projected_x < coords->projected_x)
-	{
-		render_resources->largest_projected_x = coords->projected_x;
-		current_width_needed = render_resources->largest_projected_x + WINDOW_MARGIN;
-		if (current_width_needed > render_resources->screen_width)
-			return (0);
-	}
-	if (render_resources->largest_projected_y < coords->projected_y)
-	{
-		render_resources->largest_projected_y = coords->projected_y;
-		current_hight_needed = render_resources->largest_projected_y + WINDOW_MARGIN;
-		if (current_hight_needed > render_resources->screen_hight)
-			return (0);
-	}
-	return (1);
+	if (coords->projected_x < render_resources->lowest_projected_x)
+		render_resources->lowest_projected_x = coords->projected_x;
+	else if (coords->projected_x > render_resources->greatest_projected_x)
+			render_resources->greatest_projected_x = coords->projected_x;
+	if (coords->projected_y < render_resources->lowest_projected_y)
+		render_resources->lowest_projected_y = coords->projected_y;
+	else if (coords->projected_y > render_resources->greatest_projected_y)
+		render_resources->greatest_projected_y = coords->projected_y;
+	return ;
 }

@@ -15,14 +15,14 @@
 void	initialize_mlx_resources(t_minilibx_resources *mlx_resources,
 	t_rendering_resources render_resources, t_coordinates *coords)
 {
-	mlx_resources->img_ptr = mlx_new_image(mlx_resources->mlx_ptr, render_resources.largest_projected_x + WINDOW_MARGIN,
-		render_resources.largest_projected_y + WINDOW_MARGIN);
+	mlx_resources->img_ptr = mlx_new_image(mlx_resources->mlx_ptr, render_resources.greatest_projected_x + WINDOW_MARGIN,
+		render_resources.greatest_projected_y + WINDOW_MARGIN);
 	if (!mlx_resources->img_ptr)
-		clean_up_and_exit(5, *mlx_resources, coords); // Instance 5, free mlx_ptr and coords
+		clean_up_and_exit(5, mlx_resources, coords); // Instance 5, free mlx_ptr and coords
 	mlx_resources->img_addr = mlx_get_data_addr(mlx_resources->img_ptr,
 		&mlx_resources->bits_per_pixel, &mlx_resources->size_line, &mlx_resources->endian);
 	if (!mlx_resources->img_addr)
-		clean_up_and_exit(6, *mlx_resources, coords); // Instance 6, free mlx_ptr and coords, destroy image
+		clean_up_and_exit(6, mlx_resources, coords); // Instance 6, free mlx_ptr and coords, destroy image
 	return ;
 }
 
@@ -93,7 +93,7 @@ void	get_lower_coord(t_coordinates *coords, t_coordinates **lower_coord,
 
 	*lower_coord = coords;
 	coord_nbr = 1;
-	while (coord_nbr <= render_resources.row_length) // && (*lower_coord)->next != NULL
+	while (coord_nbr <= render_resources.row_length)
 	{
 		*lower_coord = (*lower_coord)->next;
 		coord_nbr++;

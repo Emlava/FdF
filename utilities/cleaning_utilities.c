@@ -83,25 +83,25 @@ void	mlx_clean_up(int instance, t_minilibx_resources mlx_resources)
 void	clean_up_and_exit(int instance, ...)
 {
 	va_list					arg_list;
-	t_map_resources			map;
-	t_minilibx_resources	mlx_resources;
+	t_map_resources			*map;
+	t_minilibx_resources	*mlx_resources;
 
 	va_start(arg_list, instance);
 	if (instance <= 4)
 	{
 		// For Insts 1-4: arg 2
-		map = va_arg(arg_list, t_map_resources);
-		map_clean_up(instance, map);
+		map = va_arg(arg_list, t_map_resources*);
+		map_clean_up(instance, *map);
 	}
 	if (instance >= 2)
 	{
 		// For Insts 2-4: arg 3
 		// For Insts 5-7: arg 2
-		mlx_resources = va_arg(arg_list, t_minilibx_resources);
+		mlx_resources = va_arg(arg_list, t_minilibx_resources*);
 		if (instance != 6)
-			mlx_clean_up(1, mlx_resources);
+			mlx_clean_up(1, *mlx_resources);
 		else
-			mlx_clean_up(2, mlx_resources);
+			mlx_clean_up(2, *mlx_resources);
 	}
 	if (instance >= 3 && instance <= 6)
 		// For Insts 3-4: arg 4

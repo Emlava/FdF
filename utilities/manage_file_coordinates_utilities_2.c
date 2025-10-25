@@ -12,6 +12,41 @@
 
 #include "../fdf.h"
 
+int	image_size_check(t_rendering_resources *render_resources)
+{
+	int	current_width_needed;
+	int	current_hight_needed;
+
+	current_width_needed = render_resources->greatest_projected_x + WINDOW_MARGIN;
+	current_hight_needed = render_resources->greatest_projected_y + WINDOW_MARGIN;
+	if (current_width_needed > render_resources->screen_width
+		|| current_hight_needed > render_resources->screen_hight)
+		return (0);
+	else
+		return (1);
+}
+
+int	adjust_coords_into_frame(t_coordinates *coords,
+	t_rendering_resources *render_resources)
+{
+	int	to_frame_x;
+	int	to_frame_y;
+
+	to_frame_x = -render_resources->lowest_projected_x;
+	render_resources->greatest_projected_x += to_frame_x;
+	to_frame_y = -render_resources->lowest_projected_y;
+	render_resources->greatest_projected_y += to_frame_y;
+	if (!image_size_check(render_resources))
+		return (0);
+	while (coords != NULL)
+	{
+		coords->projected_x += to_frame_x;
+		coords->projected_y += to_frame_y;
+		coords = coords->next;
+	}
+	return (1);
+}
+
 int	ishex(char *str)
 {
 	size_t	i;

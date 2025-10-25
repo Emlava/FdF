@@ -13,9 +13,9 @@
 #ifndef FDF_H
 # define FDF_H
 # define PI 3.14159265358979323846
-# define WINDOW_MARGIN 100 // Must be an even number
+# define WINDOW_MARGIN 400 // Must be an even number
 # define OFFSET (WINDOW_MARGIN / 2)
-# define SCALE 30
+# define SCALE 10
 # define NO 0
 # define YES 1
 # include <X11/X.h>
@@ -61,8 +61,10 @@ typedef struct s_rendering_resources
 	int	screen_hight;
 	int	row_length;
 	int	nbr_of_rows;
-	int	largest_projected_x;
-	int	largest_projected_y;
+	int	greatest_projected_x;
+	int	greatest_projected_y;
+	int	lowest_projected_x;
+	int	lowest_projected_y;
 }	t_rendering_resources;
 
 typedef struct s_drawing_resources
@@ -83,16 +85,19 @@ void	argument_check(int ac, char *av[]);
 void	manage_file_coordinates(char *file, t_coordinates **coords,
 			t_minilibx_resources *mlx_resources, t_rendering_resources *render_resources);
 
-/**** manage_file_coordinates_utilities_1.c */
+/**** manage_file_coordinates_utilities_1.c ****/
 void	assign_various_resources(t_map_resources *map, t_coordinates **coords,
 			t_minilibx_resources *mlx_resources, t_rendering_resources *render_resources);
 int		check_for_valid_row_length(t_rendering_resources *render_resources,
 			t_map_resources map);
 int		create_next_node(t_coordinates **coords);
-int		image_size_check(t_rendering_resources *render_resources,
-			t_coordinates *coords);
+void	look_for_greatest_and_lowest_points(t_coordinates *coords,
+			t_rendering_resources *render_resources);
 
-/**** manage_file_coordinates_utilities_2.c */
+/**** manage_file_coordinates_utilities_2.c ****/			
+int		image_size_check(t_rendering_resources *render_resources);
+int		adjust_coords_into_frame(t_coordinates *coords,
+			t_rendering_resources *render_resources);
 int		ishex(char *str);
 
 /**** create_image.c ****/
