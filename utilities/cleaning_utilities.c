@@ -18,13 +18,14 @@ void	free_linked_list(t_coordinates *list)
 
 	if (list == NULL)
 		return ;
-	while (list->next != NULL)
+	while (list->prev != NULL)
+		list = list->prev;
+	while (list != NULL)
 	{
 		tmp = list;
 		list = list->next;
 		free(tmp);
 	}
-	free(list);
 	return ;
 }
 

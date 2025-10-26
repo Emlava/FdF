@@ -56,7 +56,7 @@ static void	draw_columns(t_coordinates *coords, t_rendering_resources render_res
 
 	upper_coord = coords;
 	get_lower_coord(coords, &lower_coord, render_resources);
-	while (lower_coord->next != NULL)
+	while (lower_coord != NULL)
 	{
 		draw_line(*upper_coord, *lower_coord, mlx_resources);
 		upper_coord = upper_coord->next;
@@ -68,8 +68,6 @@ static void	draw_columns(t_coordinates *coords, t_rendering_resources render_res
 static void	draw_image(t_coordinates *coords,
 	t_rendering_resources render_resources, t_minilibx_resources mlx_resources)
 {
-	coords->projected_x += OFFSET;
-	coords->projected_y += OFFSET;
 	if (render_resources.nbr_of_rows == 1 && render_resources.row_length == 1)
 		draw_single_pixel(coords, mlx_resources);
 	else

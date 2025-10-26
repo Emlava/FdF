@@ -13,11 +13,11 @@
 #ifndef FDF_H
 # define FDF_H
 # define PI 3.14159265358979323846
-# define WINDOW_MARGIN 400 // Must be an even number
-# define OFFSET (WINDOW_MARGIN / 2)
-# define SCALE 10
-# define NO 0
-# define YES 1
+# define X_OFFSET (render_resources->greatest_projected_x / 2)
+# define Y_OFFSET (render_resources->greatest_projected_y / 2)
+# define SCALE 20
+# define FALSE 0
+# define TRUE 1
 # include <X11/X.h>
 # include <fcntl.h>
 # include <math.h>
@@ -53,6 +53,7 @@ typedef struct s_coordinates
 	int						colour;
 	int						already_drawn;
 	struct s_coordinates	*next;
+	struct s_coordinates	*prev;
 }	t_coordinates;
 
 typedef struct s_rendering_resources

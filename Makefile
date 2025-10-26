@@ -2,7 +2,8 @@ NAME = fdf
 LIBRARY_1 = libft/libft.a
 LIBRARY_2 = minilibx-linux/libmlx_Linux.a 
 CC = cc
-FLAGS = -g -Wall -Werror -Wextra -fsanitize=address
+# FLAGS = -g -Wall -Werror -Wextra -fsanitize=address
+FLAGS = -g -Wall -Werror -Wextra
 MLX_FLAGS = -lXext -lX11 -lm
 OBJECTS = main.o argument_check.o manage_file_coordinates.o utilities/manage_file_coordinates_utilities_1.o \
 	utilities/manage_file_coordinates_utilities_2.o create_image.o utilities/create_image_utilities.o \

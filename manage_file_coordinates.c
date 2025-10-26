@@ -66,8 +66,8 @@ static void	apply_projecting_formulas(t_coordinates *coords,
 	map.x *= SCALE;
 	map.y *= SCALE;
 	coords->z *= SCALE;
-	projection_formula_for_x = (map.x + map.y) * cos(PI / 6);
-	projection_formula_for_y = (map.x - map.y) * sin(PI / 6) - coords->z;
+	projection_formula_for_x = (map.x - map.y) * cos(PI / 6);
+	projection_formula_for_y = (map.x + map.y) * sin(PI / 6) - coords->z;
 	coords->projected_x = projection_formula_for_x;
 	coords->projected_y = projection_formula_for_y;
 	return ;
@@ -83,12 +83,12 @@ static void	project_coordinates(t_map_resources *map, t_minilibx_resources mlx_r
 			return ;
 		while (map->row[map->x])
 		{
-			parse_str_from_row(*map, mlx_resources, coords);
 			if (map->y > 0 || map->x > 0) // Meaning that we're not in the first node
 			{
 				if (!create_next_node(&coords))
 					clean_up_and_exit(4, map, &mlx_resources, coords); // Instance 4, same as previous one
 			}
+			parse_str_from_row(*map, mlx_resources, coords);
 			apply_projecting_formulas(coords, *map);
 			look_for_greatest_and_lowest_points(coords, render_resources);
 			map->x++;

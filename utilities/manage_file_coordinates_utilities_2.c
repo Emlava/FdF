@@ -14,13 +14,13 @@
 
 int	image_size_check(t_rendering_resources *render_resources)
 {
-	int	current_width_needed;
-	int	current_hight_needed;
+	int	width_needed;
+	int	heigth_needed;
 
-	current_width_needed = render_resources->greatest_projected_x + WINDOW_MARGIN;
-	current_hight_needed = render_resources->greatest_projected_y + WINDOW_MARGIN;
-	if (current_width_needed > render_resources->screen_width
-		|| current_hight_needed > render_resources->screen_hight)
+	width_needed = render_resources->greatest_projected_x * 2;
+	heigth_needed = render_resources->greatest_projected_y * 2;
+	if (width_needed > render_resources->screen_width
+		|| heigth_needed > render_resources->screen_hight)
 		return (0);
 	else
 		return (1);
@@ -32,16 +32,18 @@ int	adjust_coords_into_frame(t_coordinates *coords,
 	int	to_frame_x;
 	int	to_frame_y;
 
+	(void) coords;
+
 	to_frame_x = -render_resources->lowest_projected_x;
-	render_resources->greatest_projected_x += to_frame_x;
 	to_frame_y = -render_resources->lowest_projected_y;
+	render_resources->greatest_projected_x += to_frame_x;
 	render_resources->greatest_projected_y += to_frame_y;
 	if (!image_size_check(render_resources))
 		return (0);
 	while (coords != NULL)
 	{
-		coords->projected_x += to_frame_x;
-		coords->projected_y += to_frame_y;
+		coords->projected_x += to_frame_x + X_OFFSET;
+		coords->projected_y += to_frame_y + Y_OFFSET;
 		coords = coords->next;
 	}
 	return (1);

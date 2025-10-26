@@ -24,7 +24,8 @@ void	assign_various_resources(t_map_resources *map, t_coordinates **coords,
 	if (!(*coords)) // Instance 2, close fd and free mlx_ptr
 		clean_up_and_exit(2, map, mlx_resources);
 	(*coords)->next = NULL;
-	(*coords)->already_drawn = NO;
+	(*coords)->prev = NULL;
+	(*coords)->already_drawn = FALSE;
 	render_resources->row_length = -1;
 	map->y = 0;
 	map->i = 0;
@@ -60,12 +61,13 @@ int	check_for_valid_row_length(t_rendering_resources *render_resources,
 
 int	create_next_node(t_coordinates **coords)
 {
-	(*coords)->next = malloc(sizeof(t_coordinates));
+	(*coords)->next = malloc(sizeof(t_coordinates)); // Initialize the members that you're going to use from coords
 	if (!(*coords)->next)
 		return (0);
+	(*coords)->next->prev = *coords;
 	*coords = (*coords)->next;
 	(*coords)->next = NULL;
-	(*coords)->already_drawn = NO;
+	(*coords)->already_drawn = FALSE;
 	return (1);
 }
 

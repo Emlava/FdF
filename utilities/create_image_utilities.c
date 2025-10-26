@@ -15,8 +15,8 @@
 void	initialize_mlx_resources(t_minilibx_resources *mlx_resources,
 	t_rendering_resources render_resources, t_coordinates *coords)
 {
-	mlx_resources->img_ptr = mlx_new_image(mlx_resources->mlx_ptr, render_resources.greatest_projected_x + WINDOW_MARGIN,
-		render_resources.greatest_projected_y + WINDOW_MARGIN);
+	mlx_resources->img_ptr = mlx_new_image(mlx_resources->mlx_ptr, render_resources.greatest_projected_x * 2,
+		render_resources.greatest_projected_y * 2);
 	if (!mlx_resources->img_ptr)
 		clean_up_and_exit(5, mlx_resources, coords); // Instance 5, free mlx_ptr and coords
 	mlx_resources->img_addr = mlx_get_data_addr(mlx_resources->img_ptr,
@@ -47,8 +47,8 @@ static void	draw_pixel_in_line(t_minilibx_resources mlx_resources, t_coordinates
 	int		column;
 	char	*dest;
 
-	if (coord_1->already_drawn)
-		return ;
+	// if (coord_1->already_drawn)
+	// 	return ;
 	row = coord_1->projected_y * mlx_resources.size_line;
 	column = coord_1->projected_x * (mlx_resources.bits_per_pixel / 8);
 	dest = mlx_resources.img_addr + row + column;
@@ -58,7 +58,7 @@ static void	draw_pixel_in_line(t_minilibx_resources mlx_resources, t_coordinates
 		*(int*)dest = coord_1->colour;
 	else
 		*(int*)dest = coord_2.colour;
-	coord_1->already_drawn = YES;
+	coord_1->already_drawn = TRUE;
 	return ;
 }
 
