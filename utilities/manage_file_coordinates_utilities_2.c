@@ -31,8 +31,6 @@ int	adjust_coords_into_frame(t_coordinates *coords,
 	int	to_frame_x;
 	int	to_frame_y;
 
-	(void) coords;
-
 	to_frame_x = -render_resources->lowest_projected_x;
 	to_frame_y = -render_resources->lowest_projected_y;
 	render_resources->greatest_projected_x += to_frame_x;
