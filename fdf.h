@@ -13,8 +13,7 @@
 #ifndef FDF_H
 # define FDF_H
 # define PI 3.14159265358979323846
-# define X_OFFSET (render_resources->greatest_projected_x / 2)
-# define Y_OFFSET (render_resources->greatest_projected_y / 2)
+# define MARGIN 150
 # define SCALE 20
 # define FALSE 0
 # define TRUE 1
@@ -51,7 +50,6 @@ typedef struct s_coordinates
 	int						projected_x;
 	int						projected_y;
 	int						colour;
-	int						already_drawn;
 	struct s_coordinates	*next;
 	struct s_coordinates	*prev;
 }	t_coordinates;
@@ -66,6 +64,8 @@ typedef struct s_rendering_resources
 	int	greatest_projected_y;
 	int	lowest_projected_x;
 	int	lowest_projected_y;
+	int	image_width;
+	int	image_height;
 }	t_rendering_resources;
 
 typedef struct s_drawing_resources
@@ -96,14 +96,13 @@ void	look_for_greatest_and_lowest_points(t_coordinates *coords,
 			t_rendering_resources *render_resources);
 
 /**** manage_file_coordinates_utilities_2.c ****/			
-int		image_size_check(t_rendering_resources *render_resources);
 int		adjust_coords_into_frame(t_coordinates *coords,
 			t_rendering_resources *render_resources);
 int		ishex(char *str);
 
 /**** create_image.c ****/
 void	create_image(t_minilibx_resources *mlx_resources,
-			t_rendering_resources render_resources, t_coordinates *coords);
+			t_rendering_resources *render_resources, t_coordinates *coords);
 
 /**** create_image_utilities.c ****/
 void	initialize_mlx_resources(t_minilibx_resources *mlx_resources,

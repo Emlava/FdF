@@ -31,7 +31,7 @@ static void	parse_str_from_row(t_map_resources map, t_minilibx_resources mlx_res
 {
 	while (1)
 	{
-		if (ft_isdigit(map.row[map.x][map.i]))
+		if (ft_isdigit(map.row[map.x][map.i]) || (map.row[map.x][map.i] == '-') || map.row[map.x][map.i] == '\n')
 		{
 			map.i++;
 			if (!map.row[map.x][map.i] || map.row[map.x][map.i] == '\n')
@@ -115,8 +115,8 @@ void	manage_file_coordinates(char *file, t_coordinates **coords,
 	render_resources->nbr_of_rows = map.y;
 	if (!adjust_coords_into_frame(*coords, render_resources))
 	{
-		ft_dprintf(2, "Image too large\n");
-			clean_up_and_exit(5, mlx_resources, *coords); // Instance 5
+		ft_dprintf(2, "Image too large, try defining a lower SCALE\n");
+		clean_up_and_exit(5, mlx_resources, *coords); // Instance 5
 	}
 	close(map.fd);
 	return ;

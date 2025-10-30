@@ -22,7 +22,8 @@ static void	draw_single_pixel(t_coordinates *coord,
 	row = coord->projected_y * mlx_resources.size_line;
 	column = coord->projected_x * (mlx_resources.bits_per_pixel / 8);
 	dest = mlx_resources.img_addr + row + column;
-	*(int*)dest = coord->colour;
+	if (*(int*)dest == 0 && coord->colour != 0)
+		*(int*)dest = coord->colour;
 	return ;
 }
 
@@ -34,7 +35,7 @@ static void	draw_rows(t_coordinates *coords, t_rendering_resources render_resour
 
 	lines_in_row = render_resources.row_length - 1;
 	lines_to_draw = lines_in_row;
-	while (coords->next != NULL)
+	while (1)
 	{
 		if (lines_to_draw)
 		{
@@ -44,8 +45,12 @@ static void	draw_rows(t_coordinates *coords, t_rendering_resources render_resour
 		else
 			lines_to_draw = lines_in_row;
 		coords = coords->next;
+		if (coords->next == NULL)
+		{
+			draw_single_pixel(coords, mlx_resources);
+			return ;
+		}
 	}
-	return ;
 }
 
 static void	draw_columns(t_coordinates *coords, t_rendering_resources render_resources,
@@ -56,13 +61,17 @@ static void	draw_columns(t_coordinates *coords, t_rendering_resources render_res
 
 	upper_coord = coords;
 	get_lower_coord(coords, &lower_coord, render_resources);
-	while (lower_coord != NULL)
+	while (1)
 	{
 		draw_line(*upper_coord, *lower_coord, mlx_resources);
+		if (lower_coord->next == NULL)
+		{
+			draw_single_pixel(lower_coord, mlx_resources);
+			return ;
+		}
 		upper_coord = upper_coord->next;
 		lower_coord = lower_coord->next;
 	}
-	return ;
 }
 
 static void	draw_image(t_coordinates *coords,
@@ -81,10 +90,10 @@ static void	draw_image(t_coordinates *coords,
 }
 
 void	create_image(t_minilibx_resources *mlx_resources,
-	t_rendering_resources render_resources, t_coordinates *coords)
+	t_rendering_resources *render_resources, t_coordinates *coords)
 {
-	initialize_mlx_resources(mlx_resources, render_resources, coords);
-	draw_image(coords, render_resources, *mlx_resources);
+	initialize_mlx_resources(mlx_resources, *render_resources, coords);
+	draw_image(coords, *render_resources, *mlx_resources);
 	free_linked_list(coords);
 	return ;
 }

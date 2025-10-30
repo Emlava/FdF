@@ -12,15 +12,14 @@
 
 #include "../fdf.h"
 
-int	image_size_check(t_rendering_resources *render_resources)
+static int	image_size_check(t_rendering_resources *render_resources)
 {
-	int	width_needed;
-	int	heigth_needed;
-
-	width_needed = render_resources->greatest_projected_x * 2;
-	heigth_needed = render_resources->greatest_projected_y * 2;
-	if (width_needed > render_resources->screen_width
-		|| heigth_needed > render_resources->screen_hight)
+	render_resources->image_width = (MARGIN * 2)
+		+ render_resources->greatest_projected_x + 1;
+	render_resources->image_height = (MARGIN * 2)
+		+ render_resources->greatest_projected_y + 1;
+	if (render_resources->image_width > render_resources->screen_width
+		|| render_resources->image_height > render_resources->screen_hight)
 		return (0);
 	else
 		return (1);
@@ -42,8 +41,8 @@ int	adjust_coords_into_frame(t_coordinates *coords,
 		return (0);
 	while (coords != NULL)
 	{
-		coords->projected_x += to_frame_x + X_OFFSET;
-		coords->projected_y += to_frame_y + Y_OFFSET;
+		coords->projected_x += to_frame_x + (MARGIN - 1);
+		coords->projected_y += to_frame_y + (MARGIN - 1);
 		coords = coords->next;
 	}
 	return (1);
@@ -60,7 +59,7 @@ int	ishex(char *str)
 			|| (str[i] >= 'A' && str[i] <= 'F')
 			|| (str[i] >= 'a' && str[i] <= 'f')))
 			i++;
-		if (!str[i])
+		if (!str[i] || str[i] == '\n')
 			return (1);
 	}
 	return (0);

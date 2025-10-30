@@ -15,8 +15,8 @@
 void	initialize_mlx_resources(t_minilibx_resources *mlx_resources,
 	t_rendering_resources render_resources, t_coordinates *coords)
 {
-	mlx_resources->img_ptr = mlx_new_image(mlx_resources->mlx_ptr, render_resources.greatest_projected_x * 2,
-		render_resources.greatest_projected_y * 2);
+	mlx_resources->img_ptr = mlx_new_image(mlx_resources->mlx_ptr, render_resources.image_width,
+		render_resources.image_height);
 	if (!mlx_resources->img_ptr)
 		clean_up_and_exit(5, mlx_resources, coords); // Instance 5, free mlx_ptr and coords
 	mlx_resources->img_addr = mlx_get_data_addr(mlx_resources->img_ptr,
@@ -46,19 +46,19 @@ static void	draw_pixel_in_line(t_minilibx_resources mlx_resources, t_coordinates
 	int		row;
 	int		column;
 	char	*dest;
+	int		colour;
 
-	// if (coord_1->already_drawn)
-	// 	return ;
 	row = coord_1->projected_y * mlx_resources.size_line;
 	column = coord_1->projected_x * (mlx_resources.bits_per_pixel / 8);
 	dest = mlx_resources.img_addr + row + column;
 	if (drawing_resources.i != 0)
 		coord_1->colour += drawing_resources.colour_gradient_rate;
 	if (coord_1->colour < coord_2.colour)
-		*(int*)dest = coord_1->colour;
+		colour = coord_1->colour;
 	else
-		*(int*)dest = coord_2.colour;
-	coord_1->already_drawn = TRUE;
+		colour = coord_2.colour;
+	if (*(int*)dest == 0 && colour != 0)
+		*(int*)dest = colour;
 	return ;
 }
 
@@ -76,9 +76,12 @@ void	draw_line(t_coordinates coord_1, t_coordinates coord_2, t_minilibx_resource
 	drawing_resources.slope_y = drawing_resources.dy / (float)drawing_resources.steps;
 	drawing_resources.colour_gradient_rate = manage_colour(coord_1.colour, coord_2.colour);
 	drawing_resources.i = 0;
-	while (drawing_resources.i <= drawing_resources.steps)
+	while (drawing_resources.i < drawing_resources.steps)
 	{
-		draw_pixel_in_line(mlx_resources, &coord_1, coord_2, drawing_resources);
+		//
+		// if (drawing_resources.i == 0)
+		//
+			draw_pixel_in_line(mlx_resources, &coord_1, coord_2, drawing_resources);
 		coord_1.projected_x += drawing_resources.slope_x;
 		coord_1.projected_y += drawing_resources.slope_y;
 		drawing_resources.i++;

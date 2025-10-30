@@ -25,7 +25,6 @@ void	assign_various_resources(t_map_resources *map, t_coordinates **coords,
 		clean_up_and_exit(2, map, mlx_resources);
 	(*coords)->next = NULL;
 	(*coords)->prev = NULL;
-	(*coords)->already_drawn = FALSE;
 	render_resources->row_length = -1;
 	map->y = 0;
 	map->i = 0;
@@ -67,7 +66,6 @@ int	create_next_node(t_coordinates **coords)
 	(*coords)->next->prev = *coords;
 	*coords = (*coords)->next;
 	(*coords)->next = NULL;
-	(*coords)->already_drawn = FALSE;
 	return (1);
 }
 

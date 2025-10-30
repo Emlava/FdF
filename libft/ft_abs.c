@@ -1,29 +1,19 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   hooks.c                                            :+:      :+:    :+:   */
+/*   ft_abs.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: elara-va <elara-va@student.s19.be>         #+#  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025-10-14 18:10:26 by elara-va          #+#    #+#             */
-/*   Updated: 2025-10-14 18:10:26 by elara-va         ###   ########.be       */
+/*   Created: 2025-10-29 19:16:06 by elara-va          #+#    #+#             */
+/*   Updated: 2025-10-29 19:16:06 by elara-va         ###   ########.be       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "fdf.h"
-
-int	manage_esc(int keycode, void *mlx_resources)
+int	ft_abs(int nbr)
 {
-	if (keycode == 0xff1b)
-	{
-		mlx_clean_up(3, *(t_minilibx_resources*)mlx_resources);
-		exit(EXIT_SUCCESS);
-	}
-	return (0);
-}
-
-int	manage_cross(void *mlx_resources)
-{
-	mlx_clean_up(3, *(t_minilibx_resources*)mlx_resources);
-	exit(EXIT_SUCCESS);
+	if (nbr >= 0)
+		return (nbr);
+	else
+		return (-nbr);
 }
