@@ -31,9 +31,12 @@ static void	parse_str_from_row(t_map_resources map, t_minilibx_resources mlx_res
 {
 	while (1)
 	{
-		if (ft_isdigit(map.row[map.x][map.i]) || (map.row[map.x][map.i] == '-') || map.row[map.x][map.i] == '\n')
+		if (ft_isdigit(map.row[map.x][map.i]) || (map.row[map.x][map.i] == '-' && ft_isdigit(map.row[map.x][map.i + 1])))
 		{
-			map.i++;
+			if (map.row[map.x][map.i] == '-')
+				map.i += 2;
+			else
+				map.i++;
 			if (!map.row[map.x][map.i] || map.row[map.x][map.i] == '\n')
 			{
 				coords->colour = 0xFFFFFF;
@@ -50,7 +53,15 @@ static void	parse_str_from_row(t_map_resources map, t_minilibx_resources mlx_res
 					return ;
 				}
 			}
-			ft_dprintf(2, "Invalid .fdf file: Empty line or invalid coordinate\n");
+			else if (map.row[map.x][map.i] == '\n')
+			{
+				if (map.i != 0 || (map.i == 0 && map.x != 0))
+					return ;
+				else
+					ft_dprintf(2, "Invalid .fdf file: Wrong line length found in line %d\n", map.y + 1);
+			}
+			else
+				ft_dprintf(2, "Invalid .fdf file: Empty line or invalid coordinate\n");
 			clean_up_and_exit(4, &map, &mlx_resources, coords); // Instance 4, same as previous one
 		}
 	}
