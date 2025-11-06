@@ -37,7 +37,12 @@ void	assign_various_resources(t_map_resources *map, t_coordinates **coords,
 
 static int	get_row_length(char **row)
 {
-	return ((int)ft_listlen(row));
+	int	i;
+
+	i = 0;
+	while (row[i] && row[i][0] != '\n')
+		i++;
+	return (i);
 }
 
 int	check_for_valid_row_length(t_rendering_resources *render_resources,

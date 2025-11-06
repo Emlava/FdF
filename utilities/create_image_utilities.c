@@ -64,26 +64,27 @@ static void	draw_pixel_in_line(t_minilibx_resources mlx_resources, t_coordinates
 
 void	draw_line(t_coordinates coord_1, t_coordinates coord_2, t_minilibx_resources mlx_resources)
 {
-	t_drawing_resources	drawing_resources;
+	t_drawing_resources drawing_resources;
 
 	drawing_resources.dx = coord_2.projected_x - coord_1.projected_x;
 	drawing_resources.dy = coord_2.projected_y - coord_1.projected_y;
-	if (drawing_resources.dx > drawing_resources.dy)
-		drawing_resources.steps = drawing_resources.dx;
+	if (ft_abs(drawing_resources.dx) > ft_abs(drawing_resources.dy))
+		drawing_resources.steps = ft_abs(drawing_resources.dx);
 	else
-		drawing_resources.steps = drawing_resources.dy;
-	drawing_resources.slope_x = drawing_resources.dx / (float)drawing_resources.steps;
-	drawing_resources.slope_y = drawing_resources.dy / (float)drawing_resources.steps;
-	drawing_resources.colour_gradient_rate = manage_colour(coord_1.colour, coord_2.colour);
+		drawing_resources.steps = ft_abs(drawing_resources.dy);
+	drawing_resources.slope_x = (float)drawing_resources.dx / (float)drawing_resources.steps;
+	drawing_resources.slope_y = (float)drawing_resources.dy / (float)drawing_resources.steps;
+	drawing_resources.floating_x = coord_1.projected_x;
+	drawing_resources.floating_y = coord_1.projected_y;
 	drawing_resources.i = 0;
+	drawing_resources.colour_gradient_rate = manage_colour(coord_1.colour, coord_2.colour);
 	while (drawing_resources.i < drawing_resources.steps)
 	{
-		//
-		// if (drawing_resources.i == 0)
-		//
-			draw_pixel_in_line(mlx_resources, &coord_1, coord_2, drawing_resources);
-		coord_1.projected_x += drawing_resources.slope_x;
-		coord_1.projected_y += drawing_resources.slope_y;
+		draw_pixel_in_line(mlx_resources, &coord_1, coord_2, drawing_resources);
+		drawing_resources.floating_x += drawing_resources.slope_x;
+		drawing_resources.floating_y += drawing_resources.slope_y;
+		coord_1.projected_x = drawing_resources.floating_x;
+		coord_1.projected_y = drawing_resources.floating_y;
 		drawing_resources.i++;
 	}
 	return ;

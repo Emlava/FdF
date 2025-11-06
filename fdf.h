@@ -70,13 +70,15 @@ typedef struct s_rendering_resources
 
 typedef struct s_drawing_resources
 {
-	int	dx;
-	int	dy;
-	int	steps;
-	int slope_x;
-	int slope_y;
-	int	colour_gradient_rate;
-	int	i;
+	int		dx;
+	int		dy;
+	int		steps;
+	float	slope_x;
+	float	slope_y;
+	float	floating_x;
+	float	floating_y;
+	int		colour_gradient_rate;
+	int		i;
 }	t_drawing_resources;
 
 /**** argument_check.c ****/
