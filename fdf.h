@@ -14,7 +14,7 @@
 # define FDF_H
 # define PI 3.14159265358979323846
 # define MARGIN 150
-# define SCALE 1
+# define SCALE 20
 # define FALSE 0
 # define TRUE 1
 # include <X11/X.h>

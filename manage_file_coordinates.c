@@ -80,7 +80,7 @@ static void	project_coordinates(t_map_resources *map,
 			return ;
 		while (map->x < render_resources->row_length)
 		{
-			if (map->y > 0 || map->x > 0) // Meaning that we're not in the first node
+			if (map->y > 0 || map->x > 0)
 			{
 				if (!create_next_node(&coords))
 					clean_up_and_exit(4, map, &mlx_resources, coords);

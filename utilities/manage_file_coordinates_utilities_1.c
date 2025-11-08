@@ -86,15 +86,14 @@ int	manage_colour(t_map_resources map, t_coordinates *coords)
 			coords->colour = ft_hexatoi(map.row[map.x] + (map.i + 1));
 			if (coords->colour >= 0 && coords->colour <= 0xFFFFFF)
 				return (1);
-			else
-			{
-				ft_dprintf(2, "Invalid .fdf file: non-existent colour found in line %d, column %d\n",
-					map.y + 1, map.x + 1);
-			}
 		}
+		ft_dprintf(2, "Invalid .fdf file: non-existent colour found");
+		ft_dprintf(2, " in line %d, column %d\n", map.y + 1, map.x + 1);
 	}
 	else
-		ft_dprintf(2, "Invalid .fdf file: Empty line or invalid coordinate found in line %d, column %d\n",
-			map.y + 1, map.x + 1);
+	{
+		ft_dprintf(2, "Invalid .fdf file: Invalid coordinate found");
+		ft_dprintf(2, " in line %d, column %d\n", map.y + 1, map.x + 1);
+	}
 	return (0);
 }

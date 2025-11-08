@@ -64,9 +64,12 @@ int	ishex(char *str)
 {
 	size_t	i;
 
-	if (str[0] == '0' && (str[1] == 'x' || str[1] == 'X'))
+	i = 0;
+	if (str[i] == '-')
+		i++;
+	if (str[i] == '0' && (str[i + 1] == 'x' || str[i + 1] == 'X'))
 	{
-		i = 2;
+		i += 2;
 		while (str[i] && ((str[i] >= '0' && str[i] <= '9')
 				|| (str[i] >= 'A' && str[i] <= 'F')
 				|| (str[i] >= 'a' && str[i] <= 'f')))
