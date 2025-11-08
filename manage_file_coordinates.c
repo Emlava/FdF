@@ -19,19 +19,21 @@ static int	parse_row(t_map_resources *map, t_minilibx_resources mlx_resources,
 	if (!map->gnl_str)
 		return (0);
 	map->row = ft_split(map->gnl_str, ' ');
-	if (!map->row) // Instance 3, close fd, free mlx_ptr, coord and gnl_str
+	if (!map->row)
 		clean_up_and_exit(3, map, &mlx_resources, coords);
-	if (!check_for_valid_row_length(render_resources, *map)) // Instance 4, close fd, free mlx_ptr, coord, gnl_str and row
+	if (!check_for_valid_row_length(render_resources, *map))
 		clean_up_and_exit(4, map, &mlx_resources, coords);
 	return (1);
 }
 
-static void	parse_str_from_row(t_map_resources map, t_minilibx_resources mlx_resources,
-	t_coordinates *coords)
+static void	parse_str_from_row(t_map_resources map,
+	t_minilibx_resources mlx_resources, t_coordinates *coords)
 {
 	while (1)
 	{
-		if (ft_isdigit(map.row[map.x][map.i]) || (map.row[map.x][map.i] == '-' && ft_isdigit(map.row[map.x][map.i + 1])))
+		if (ft_isdigit(map.row[map.x][map.i])
+			|| (map.i == 0 && map.row[map.x][map.i] == '-'
+			&& ft_isdigit(map.row[map.x][map.i + 1])))
 		{
 			if (map.row[map.x][map.i] == '-')
 				map.i += 2;
@@ -43,27 +45,10 @@ static void	parse_str_from_row(t_map_resources map, t_minilibx_resources mlx_res
 				return ;
 			}
 		}
+		else if (!manage_colour(map, coords))
+			clean_up_and_exit(4, &map, &mlx_resources, coords);
 		else
-		{
-			if (map.row[map.x][map.i] == ',')
-			{
-				if (ishex(map.row[map.x] + (map.i + 1)))
-				{
-					coords->colour = 0xFFFFFF; // Change this to assign the hexadecimal from the string
-					return ;
-				}
-			}
-			else if (map.row[map.x][map.i] == '\n')
-			{
-				if (map.i != 0 || (map.i == 0 && map.x != 0))
-					return ;
-				else
-					ft_dprintf(2, "Invalid .fdf file: Wrong line length found in line %d\n", map.y + 1);
-			}
-			else
-				ft_dprintf(2, "Invalid .fdf file: Empty line or invalid coordinate\n");
-			clean_up_and_exit(4, &map, &mlx_resources, coords); // Instance 4, same as previous one
-		}
+			return ;
 	}
 }
 
@@ -84,20 +69,21 @@ static void	apply_projecting_formulas(t_coordinates *coords,
 	return ;
 }
 
-static void	project_coordinates(t_map_resources *map, t_minilibx_resources mlx_resources,
-	t_coordinates *coords, t_rendering_resources *render_resources)
+static void	project_coordinates(t_map_resources *map,
+	t_minilibx_resources mlx_resources, t_coordinates *coords,
+	t_rendering_resources *render_resources)
 {
 	while (1)
 	{
 		map->x = 0;
 		if (!parse_row(map, mlx_resources, coords, render_resources))
 			return ;
-		while (map->row[map->x])
+		while (map->x < render_resources->row_length)
 		{
 			if (map->y > 0 || map->x > 0) // Meaning that we're not in the first node
 			{
 				if (!create_next_node(&coords))
-					clean_up_and_exit(4, map, &mlx_resources, coords); // Instance 4, same as previous one
+					clean_up_and_exit(4, map, &mlx_resources, coords);
 			}
 			parse_str_from_row(*map, mlx_resources, coords);
 			apply_projecting_formulas(coords, *map);
@@ -108,12 +94,13 @@ static void	project_coordinates(t_map_resources *map, t_minilibx_resources mlx_r
 		free(map->gnl_str);
 		free_str_arr(map->row);
 	}
-}	
+}
 
 void	manage_file_coordinates(char *file, t_coordinates **coords,
-	t_minilibx_resources *mlx_resources, t_rendering_resources *render_resources)
+	t_minilibx_resources *mlx_resources,
+	t_rendering_resources *render_resources)
 {
-	t_map_resources map;
+	t_map_resources	map;
 
 	map.fd = open(file, O_RDONLY);
 	if (map.fd == -1)
@@ -127,7 +114,7 @@ void	manage_file_coordinates(char *file, t_coordinates **coords,
 	if (!adjust_coords_into_frame(*coords, render_resources))
 	{
 		ft_dprintf(2, "Image too large, try defining a lower SCALE\n");
-		clean_up_and_exit(5, mlx_resources, *coords); // Instance 5
+		clean_up_and_exit(5, mlx_resources, *coords);
 	}
 	close(map.fd);
 	return ;

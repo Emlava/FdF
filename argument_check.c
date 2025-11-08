@@ -33,8 +33,7 @@ void	argument_check(int ac, char *av[])
 	size_t	i;
 
 	i = 1;
-
-	if (ac != 2 || !extension_check(av[1], "fdf")) 
+	if (ac != 2 || !extension_check(av[1], "fdf"))
 	{
 		ft_printf("Enter exactly one coordinates file with .fdf extension\n");
 		exit(EXIT_FAILURE);

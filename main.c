@@ -17,14 +17,17 @@
 static void	display_image(t_minilibx_resources mlx_resources,
 	t_rendering_resources render_resources, char *file_name)
 {
-	mlx_resources.win_ptr = mlx_new_window(mlx_resources.mlx_ptr, render_resources.image_width,
-		render_resources.image_height, file_name);
+	mlx_resources.win_ptr
+		= mlx_new_window(mlx_resources.mlx_ptr, render_resources.image_width,
+			render_resources.image_height, file_name);
 	if (!mlx_resources.win_ptr)
-		clean_up_and_exit(7, &mlx_resources); // Instance 7
-	mlx_hook(mlx_resources.win_ptr, KeyPress, KeyPressMask, manage_esc, &mlx_resources);
-	mlx_hook(mlx_resources.win_ptr, DestroyNotify, StructureNotifyMask, manage_cross, &mlx_resources);
-	mlx_put_image_to_window(mlx_resources.mlx_ptr, mlx_resources.win_ptr, mlx_resources.img_ptr,
-		0, 0);
+		clean_up_and_exit(7, &mlx_resources);
+	mlx_hook(mlx_resources.win_ptr, KeyPress, KeyPressMask,
+		manage_esc, &mlx_resources);
+	mlx_hook(mlx_resources.win_ptr, DestroyNotify, StructureNotifyMask,
+		manage_cross, &mlx_resources);
+	mlx_put_image_to_window(mlx_resources.mlx_ptr, mlx_resources.win_ptr,
+		mlx_resources.img_ptr, 0, 0);
 	mlx_loop(mlx_resources.mlx_ptr);
 }
 

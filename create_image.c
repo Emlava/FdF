@@ -12,23 +12,38 @@
 
 #include "fdf.h"
 
-static void	draw_single_pixel(t_coordinates *coord,
-	t_minilibx_resources mlx_resources)
+static void	draw_line(t_coordinates coord_1, t_coordinates coord_2,
+			t_minilibx_resources mlx_resources)
 {
-	int		row;
-	int		column;
-	char	*dest;
+	t_drawing_resources	drawing_resources;
 
-	row = coord->projected_y * mlx_resources.size_line;
-	column = coord->projected_x * (mlx_resources.bits_per_pixel / 8);
-	dest = mlx_resources.img_addr + row + column;
-	if (*(int*)dest == 0 && coord->colour != 0)
-		*(int*)dest = coord->colour;
+	drawing_resources.dx = coord_2.projected_x - coord_1.projected_x;
+	drawing_resources.dy = coord_2.projected_y - coord_1.projected_y;
+	if (ft_abs(drawing_resources.dx) > ft_abs(drawing_resources.dy))
+		drawing_resources.steps = ft_abs(drawing_resources.dx);
+	else
+		drawing_resources.steps = ft_abs(drawing_resources.dy);
+	drawing_resources.slope_x
+		= (float)drawing_resources.dx / (float)drawing_resources.steps;
+	drawing_resources.slope_y
+		= (float)drawing_resources.dy / (float)drawing_resources.steps;
+	if (coord_1.colour != coord_2.colour)
+		get_colour_gradient_rates(coord_1.colour, coord_2.colour,
+			&drawing_resources);
+	while (drawing_resources.steps)
+	{
+		draw_pixel(mlx_resources, &coord_1);
+		coord_1.projected_x += drawing_resources.slope_x;
+		coord_1.projected_y += drawing_resources.slope_y;
+		if (coord_1.colour != coord_2.colour)
+			manage_colour_grading(&coord_1.colour, drawing_resources);
+		drawing_resources.steps--;
+	}
 	return ;
 }
 
-static void	draw_rows(t_coordinates *coords, t_rendering_resources render_resources,
-	t_minilibx_resources mlx_resources)
+static void	draw_rows(t_coordinates *coords,
+	t_rendering_resources render_resources, t_minilibx_resources mlx_resources)
 {
 	int	lines_in_row;
 	int	lines_to_draw;
@@ -47,14 +62,14 @@ static void	draw_rows(t_coordinates *coords, t_rendering_resources render_resour
 		coords = coords->next;
 		if (coords->next == NULL)
 		{
-			draw_single_pixel(coords, mlx_resources);
+			draw_pixel(mlx_resources, coords);
 			return ;
 		}
 	}
 }
 
-static void	draw_columns(t_coordinates *coords, t_rendering_resources render_resources,
-	t_minilibx_resources mlx_resources)
+static void	draw_columns(t_coordinates *coords,
+	t_rendering_resources render_resources, t_minilibx_resources mlx_resources)
 {
 	t_coordinates	*upper_coord;
 	t_coordinates	*lower_coord;
@@ -66,7 +81,7 @@ static void	draw_columns(t_coordinates *coords, t_rendering_resources render_res
 		draw_line(*upper_coord, *lower_coord, mlx_resources);
 		if (lower_coord->next == NULL)
 		{
-			draw_single_pixel(lower_coord, mlx_resources);
+			draw_pixel(mlx_resources, lower_coord);
 			return ;
 		}
 		upper_coord = upper_coord->next;
@@ -78,7 +93,7 @@ static void	draw_image(t_coordinates *coords,
 	t_rendering_resources render_resources, t_minilibx_resources mlx_resources)
 {
 	if (render_resources.nbr_of_rows == 1 && render_resources.row_length == 1)
-		draw_single_pixel(coords, mlx_resources);
+		draw_pixel(mlx_resources, coords);
 	else
 	{
 		if (render_resources.row_length > 1)

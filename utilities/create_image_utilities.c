@@ -15,77 +15,80 @@
 void	initialize_mlx_resources(t_minilibx_resources *mlx_resources,
 	t_rendering_resources render_resources, t_coordinates *coords)
 {
-	mlx_resources->img_ptr = mlx_new_image(mlx_resources->mlx_ptr, render_resources.image_width,
-		render_resources.image_height);
+	mlx_resources->img_ptr = mlx_new_image(mlx_resources->mlx_ptr,
+			render_resources.image_width, render_resources.image_height);
 	if (!mlx_resources->img_ptr)
-		clean_up_and_exit(5, mlx_resources, coords); // Instance 5, free mlx_ptr and coords
+		clean_up_and_exit(5, mlx_resources, coords);
 	mlx_resources->img_addr = mlx_get_data_addr(mlx_resources->img_ptr,
-		&mlx_resources->bits_per_pixel, &mlx_resources->size_line, &mlx_resources->endian);
+			&mlx_resources->bits_per_pixel, &mlx_resources->size_line,
+			&mlx_resources->endian);
 	if (!mlx_resources->img_addr)
-		clean_up_and_exit(6, mlx_resources, coords); // Instance 6, free mlx_ptr and coords, destroy image
+		clean_up_and_exit(6, mlx_resources, coords);
 	return ;
 }
 
-static int	manage_colour(int colour_1, int colour_2)
+void	get_colour_gradient_rates(int colour_1, int colour_2,
+	t_drawing_resources *drawing_resources)
 {
-	int		colour_difference;
-	int	colour_gradient_rate;
+	int		r_colour_difference;
+	int		g_colour_difference;
+	int		b_colour_difference;
 
-	colour_gradient_rate = 0;
+	drawing_resources->r_gradient_rate = 0;
+	drawing_resources->g_gradient_rate = 0;
+	drawing_resources->b_gradient_rate = 0;
 	if (colour_1 != colour_2)
 	{
-		colour_difference = colour_1 - colour_2;
-		colour_gradient_rate = roundf((float)colour_difference / SCALE);
+		r_colour_difference = (colour_2 >> 16) - (colour_1 >> 16);
+		g_colour_difference = ((colour_2 >> 8) & 0xFF) - ((colour_1 >> 8)
+				& 0xFF);
+		b_colour_difference = (colour_2 & 0xFF) - (colour_1 & 0xFF);
+		drawing_resources->r_gradient_rate
+			= (float)r_colour_difference / (float)drawing_resources->steps;
+		drawing_resources->g_gradient_rate
+			= (float)g_colour_difference / (float)drawing_resources->steps;
+		drawing_resources->b_gradient_rate
+			= (float)b_colour_difference / (float)drawing_resources->steps;
 	}
-	return (colour_gradient_rate);
+	return ;
 }
 
-static void	draw_pixel_in_line(t_minilibx_resources mlx_resources, t_coordinates *coord_1,
-	t_coordinates coord_2, t_drawing_resources drawing_resources)
+void	draw_pixel(t_minilibx_resources mlx_resources, t_coordinates *coord)
 {
 	int		row;
 	int		column;
 	char	*dest;
-	int		colour;
 
-	row = coord_1->projected_y * mlx_resources.size_line;
-	column = coord_1->projected_x * (mlx_resources.bits_per_pixel / 8);
+	row = (int)coord->projected_y * mlx_resources.size_line;
+	column = (int)coord->projected_x * (mlx_resources.bits_per_pixel / 8);
 	dest = mlx_resources.img_addr + row + column;
-	if (drawing_resources.i != 0)
-		coord_1->colour += drawing_resources.colour_gradient_rate;
-	if (coord_1->colour < coord_2.colour)
-		colour = coord_1->colour;
-	else
-		colour = coord_2.colour;
-	if (*(int*)dest == 0 && colour != 0)
-		*(int*)dest = colour;
+	*(int *)dest = coord->colour;
 	return ;
 }
 
-void	draw_line(t_coordinates coord_1, t_coordinates coord_2, t_minilibx_resources mlx_resources)
+void	manage_colour_grading(int *colour,
+	t_drawing_resources drawing_resources)
 {
-	t_drawing_resources drawing_resources;
+	static float	floating_r;
+	static float	floating_g;
+	static float	floating_b;
 
-	drawing_resources.dx = coord_2.projected_x - coord_1.projected_x;
-	drawing_resources.dy = coord_2.projected_y - coord_1.projected_y;
-	if (ft_abs(drawing_resources.dx) > ft_abs(drawing_resources.dy))
-		drawing_resources.steps = ft_abs(drawing_resources.dx);
-	else
-		drawing_resources.steps = ft_abs(drawing_resources.dy);
-	drawing_resources.slope_x = (float)drawing_resources.dx / (float)drawing_resources.steps;
-	drawing_resources.slope_y = (float)drawing_resources.dy / (float)drawing_resources.steps;
-	drawing_resources.floating_x = coord_1.projected_x;
-	drawing_resources.floating_y = coord_1.projected_y;
-	drawing_resources.i = 0;
-	drawing_resources.colour_gradient_rate = manage_colour(coord_1.colour, coord_2.colour);
-	while (drawing_resources.i < drawing_resources.steps)
+	if (!floating_r && !floating_g && !floating_b)
 	{
-		draw_pixel_in_line(mlx_resources, &coord_1, coord_2, drawing_resources);
-		drawing_resources.floating_x += drawing_resources.slope_x;
-		drawing_resources.floating_y += drawing_resources.slope_y;
-		coord_1.projected_x = drawing_resources.floating_x;
-		coord_1.projected_y = drawing_resources.floating_y;
-		drawing_resources.i++;
+		floating_r = *colour >> 16;
+		floating_g = *colour >> 8;
+		floating_b = *colour & 0xFF;
+	}
+	floating_r += drawing_resources.r_gradient_rate;
+	floating_g += drawing_resources.g_gradient_rate;
+	floating_b += drawing_resources.b_gradient_rate;
+	*colour = ((int)floating_r << 16) | ((int)floating_g << 8)
+		| (int)floating_b;
+	if (drawing_resources.steps == 1)
+	{
+		floating_r = 0;
+		floating_g = 0;
+		floating_b = 0;
 	}
 	return ;
 }

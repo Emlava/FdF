@@ -13,15 +13,16 @@
 #include "../fdf.h"
 
 void	assign_various_resources(t_map_resources *map, t_coordinates **coords,
-	t_minilibx_resources *mlx_resources, t_rendering_resources *render_resources)
+	t_minilibx_resources *mlx_resources,
+	t_rendering_resources *render_resources)
 {
 	mlx_resources->mlx_ptr = mlx_init();
-	if (!mlx_resources->mlx_ptr) // Instance 1, close fd 
+	if (!mlx_resources->mlx_ptr)
 		clean_up_and_exit(1, map);
 	mlx_get_screen_size(mlx_resources->mlx_ptr, &render_resources->screen_width,
 		&render_resources->screen_hight);
 	*coords = malloc(sizeof(t_coordinates));
-	if (!(*coords)) // Instance 2, close fd and free mlx_ptr
+	if (!(*coords))
 		clean_up_and_exit(2, map, mlx_resources);
 	(*coords)->next = NULL;
 	(*coords)->prev = NULL;
@@ -50,22 +51,24 @@ int	check_for_valid_row_length(t_rendering_resources *render_resources,
 {
 	if (render_resources->row_length != -1)
 	{
-		if (get_row_length(map.row) != render_resources->row_length)
-		{
-			ft_dprintf(2,
-				"Invalid .fdf file: Wrong line length found in line %d\n",
-				map.y + 1);
-			return (0);
-		}
+		if (get_row_length(map.row) == render_resources->row_length)
+			return (1);
 	}
 	else
+	{
 		render_resources->row_length = get_row_length(map.row);
-	return (1);
+		if (render_resources->row_length != 0)
+			return (1);
+	}
+	ft_dprintf(2,
+		"Invalid .fdf file: Invalid line length found in line %d\n",
+		map.y + 1);
+	return (0);
 }
 
 int	create_next_node(t_coordinates **coords)
 {
-	(*coords)->next = malloc(sizeof(t_coordinates)); // Initialize the members that you're going to use from coords
+	(*coords)->next = malloc(sizeof(t_coordinates));
 	if (!(*coords)->next)
 		return (0);
 	(*coords)->next->prev = *coords;
@@ -74,16 +77,24 @@ int	create_next_node(t_coordinates **coords)
 	return (1);
 }
 
-void	look_for_greatest_and_lowest_points(t_coordinates *coords,
-	t_rendering_resources *render_resources)
+int	manage_colour(t_map_resources map, t_coordinates *coords)
 {
-	if (coords->projected_x < render_resources->lowest_projected_x)
-		render_resources->lowest_projected_x = coords->projected_x;
-	else if (coords->projected_x > render_resources->greatest_projected_x)
-			render_resources->greatest_projected_x = coords->projected_x;
-	if (coords->projected_y < render_resources->lowest_projected_y)
-		render_resources->lowest_projected_y = coords->projected_y;
-	else if (coords->projected_y > render_resources->greatest_projected_y)
-		render_resources->greatest_projected_y = coords->projected_y;
-	return ;
+	if (map.row[map.x][map.i] == ',')
+	{
+		if (ishex(map.row[map.x] + (map.i + 1)))
+		{
+			coords->colour = ft_hexatoi(map.row[map.x] + (map.i + 1));
+			if (coords->colour >= 0 && coords->colour <= 0xFFFFFF)
+				return (1);
+			else
+			{
+				ft_dprintf(2, "Invalid .fdf file: non-existent colour found in line %d, column %d\n",
+					map.y + 1, map.x + 1);
+			}
+		}
+	}
+	else
+		ft_dprintf(2, "Invalid .fdf file: Empty line or invalid coordinate found in line %d, column %d\n",
+			map.y + 1, map.x + 1);
+	return (0);
 }

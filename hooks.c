@@ -16,7 +16,7 @@ int	manage_esc(int keycode, void *mlx_resources)
 {
 	if (keycode == 0xff1b)
 	{
-		mlx_clean_up(3, *(t_minilibx_resources*)mlx_resources);
+		mlx_clean_up(3, *(t_minilibx_resources *)mlx_resources);
 		exit(EXIT_SUCCESS);
 	}
 	return (0);
@@ -24,6 +24,6 @@ int	manage_esc(int keycode, void *mlx_resources)
 
 int	manage_cross(void *mlx_resources)
 {
-	mlx_clean_up(3, *(t_minilibx_resources*)mlx_resources);
+	mlx_clean_up(3, *(t_minilibx_resources *)mlx_resources);
 	exit(EXIT_SUCCESS);
 }
